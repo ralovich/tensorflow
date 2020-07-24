@@ -5,6 +5,7 @@
 
 load(
     "//tensorflow:tensorflow.bzl",
+    "tf_cc_binary",
     "tf_cc_test",
     "tf_copts",
     "tf_cuda_library",
@@ -608,4 +609,49 @@ pybind_extension(
         "//tensorflow/core/platform:status",
         "@pybind11",
     ],
+)
+
+
+tf_cc_binary(
+    name = "tensorrt_convert",
+    testonly = 1,
+    srcs = ["tensorrt_convert.cc"],
+    copts = tf_copts(),
+    linkopts = select({
+        "//tensorflow:android": [
+            "-pie",
+            "-s",
+            "-landroid",
+            "-latomic",
+            "-ljnigraphics",
+            "-llog",
+            "-lm",
+            "-z defs",
+            "-s",
+            "-Wl,--exclude-libs,ALL",  # Exclude syms in all libs from auto export
+        ],
+        "//conditions:default": [],
+    }),
+    linkstatic = 1,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":trt_op_kernels",
+        ":trt_op_libs",
+        ":trt_conversion",
+        "@com_google_googletest//:gtest",
+        "@com_google_absl//absl/strings",
+        "//tensorflow/cc:cc_ops",
+        "//tensorflow/cc:ops",
+        "//tensorflow/cc:scope",
+        "//tensorflow/core/grappler:grappler_item",
+        "//tensorflow/core/grappler/clusters:cluster",
+        "//tensorflow/core:core_cpu",
+        "//tensorflow/core:core_cpu_base",
+        "//tensorflow/core:direct_session",
+        "//tensorflow/core:framework",
+        "//tensorflow/core:lib",
+        "//tensorflow/core:protos_all_cc",
+        "//tensorflow/core:test",
+        "//tensorflow/core:testlib",
+    ] + if_tensorrt([":tensorrt_lib"]),
 )
