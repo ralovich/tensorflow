@@ -35,7 +35,7 @@ DOCKER_FILE="Dockerfile.cpu"
 DOCKER_BINARY="docker"
 if [ "${TF_NEED_CUDA}" == "1" ]; then
   DOCKER_IMAGE="tf-tensorflow-gpu"
-  DOCKER_BINARY="nvidia-docker"
+  DOCKER_BINARY="docker"
   DOCKER_FILE="Dockerfile.gpu"
 fi
 if [ "${TF_NEED_ROCM}" == "1" ]; then
